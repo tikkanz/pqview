@@ -1,7 +1,7 @@
 # pqview
 
-`pqview` is a Python package for viewing the contents of Parquet files from the Linux command line.
-`pqview` uses the Polars package to read and query parquet files.
+`pqview` is a simple Python package for viewing the contents of Parquet files from the Linux command line.
+`pqview` uses [Polars](https://github.com/pola-rs/polars) to read and query parquet files.
 
 ## Features
 
@@ -13,32 +13,63 @@
 ## Installation
 
 ```bash
+uv tool install pqview  # install as tool available globally in terminal
 uv pip install pqview  # install in virtual environment
-uv tool install pqview  # install as tool available globally
 ```
 
 ## Usage
-
-### Example commands:
 ```bash
-pqview ~/titanic.parquet  # displays parquet file contents as a table using default max nrows & ncols
-pqview show ~/titanic.parquet  # `show` is the default command, so doesn't need to be specified
-pqview --all ~/titanic.parquet |less -S  # pipes all parquet file contents to `less -S`
-pqview --ncols 10 ~/titanic.parquet  # displays parquet file contents as a table, showing a maximum of 10 columns
-pqview --ncols -1 ~/titanic.parquet  # displays parquet file contents as a table, showing all columns
-pqview height ~/titanic.parquet  # displays the number of records/rows in the parquet file
-pqview schema ~/titanic.parquet  # displays the schema (column names & data types) of the parquet file
-pqview glimpse ~/titanic.parquet  # displays a dense preview of the parquet file contents
-pqview head ~/titanic.parquet  # displays 1st N rows of parquet file contents as a table
-pqview tail ~/titanic.parquet  # displays last N rows of parquet file contents as a table
-pqview csv --separator , --header ~/titanic.parquet > ~/titanic.csv  # formats contents of parquet as CSV and prints to stdout
-pqview sql --query "select PassengerId,Sex,Age,Fare from self where Survived=1" ~/titanic.parquet
+pqview --help
+```
+```
+ Usage: pqview [OPTIONS] COMMAND [ARGS]...
+
+ View Parquet file contents using Polars.
+
+
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.                         │
+│ --show-completion             Show completion for the current shell, to copy it or customize    │
+│                               the installation.                                                 │
+│ --help                        Show this message and exit.                                       │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ──────────────────────────────────────────────────────────────────────────────────────╮
+│ show      Show first and last n/2 rows of the Parquet file.                                     │
+│ schema    Display schema of the Parquet file.                                                   │
+│ height    Show number of records/rows in the Parquet file.                                      │
+│ glimpse   Return a dense preview of the DataFrame.                                              │
+│ head      Show first N rows of the Parquet file.                                                │
+│ tail      Show last N rows of the Parquet file.                                                 │
+│ sql       Show the results of an SQL query against the Parquet file.                            │
+│ csv       Return contents of the Parquet file in CSV format.                                    │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+```bash
+pqview show --help
+```
+```
+ Usage: pqview show [OPTIONS] FILE
+
+ Show first and last n/2 rows of the Parquet file.
+
+ This is the default command if no command is specified.
+
+╭─ Arguments ─────────────────────────────────────────────────────────────╮
+│ *    file      TEXT  [default: None] [required]                         │
+╰─────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────╮
+│ --nrows                INTEGER  Number of rows to show [default: 10]    │
+│ --ncols                INTEGER  Number of cols to show [default: 8]     │
+│ --all      --no-all             Show all rows [default: no-all]         │
+│ --help                          Show this message and exit.             │
+╰─────────────────────────────────────────────────────────────────────────╯
 ```
 
-### Example Usage:
+
+### Examples:
 
 ```bash
-pqview ~/titanic.parquet
+pqview ~/titanic.parquet  # displays parquet file contents as a table using default max nrows & ncols
 ```
 ```
 shape: (891, 12)
@@ -62,7 +93,7 @@ shape: (891, 12)
 ```
 
 ```bash
-pqview glimpse ~/titanic.parquet
+pqview glimpse ~/titanic.parquet  # displays a dense preview of the parquet file contents good for wide Parquets
 ```
 ```
 Rows: 891
@@ -80,6 +111,7 @@ $ Fare        <f64> 7.25, 71.2833, 7.925, 53.1, 8.05, 8.4583, 51.8625, 21.075, 1
 $ Cabin       <str> None, 'C85', None, 'C123', None, None, 'E46', None, None, None
 $ Embarked    <str> 'S', 'C', 'S', 'S', 'S', 'Q', 'S', 'S', 'S', 'C'
 ```
+
 ```bash
 pqview sql --query "select PassengerId,Sex,Age,Fare from self where Survived=1" --nrows 4 ~/titanic.parquet
 ```
@@ -97,6 +129,38 @@ shape: (342, 4)
 │ 890         ┆ male   ┆ 26.0 ┆ 30.0    │
 └─────────────┴────────┴──────┴─────────┘
 ```
+
+```bash
+pqview schema ~/titanic.parquet  # displays the schema (column names & data types) of the parquet file
+```
+```
+{'Age': Float64,
+ 'Cabin': String,
+ 'Embarked': String,
+ 'Fare': Float64,
+ 'Name': String,
+ 'Parch': Int64,
+ 'PassengerId': Int64,
+ 'Pclass': Int64,
+ 'Sex': String,
+ 'SibSp': Int64,
+ 'Survived': Int64,
+ 'Ticket': String}
+```
+
+#### Other commands to try
+```bash
+pqview show ~/titanic.parquet  # `show` is the default command, so doesn't need to be specified
+pqview --all ~/titanic.parquet |less -S  # pipes all parquet file contents to `less -S`
+pqview --ncols 10 ~/titanic.parquet  # displays parquet file contents as a table, showing a maximum of 10 columns
+pqview --ncols -1 ~/titanic.parquet  # displays parquet file contents as a table, showing all columns
+pqview height ~/titanic.parquet  # displays the number of records/rows in the parquet file
+pqview head ~/titanic.parquet  # displays 1st N rows of parquet file contents as a table
+pqview tail ~/titanic.parquet  # displays last N rows of parquet file contents as a table
+pqview csv --separator , --header ~/titanic.parquet > ~/titanic.csv  # formats contents of parquet as CSV and prints to stdout
+```
+
+
 ## License
 
 MIT
