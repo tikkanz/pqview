@@ -1,0 +1,20 @@
+[project]
+name = "pqview"
+version = "0.1.0"
+description = "Command-line tool for viewing Parquet files using Polars engine."
+readme = "README.md"
+authors = [
+    { name = "Tikkanz", email = "tikkanz@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "polars>=1.30.0",
+    "typer>=0.15.4",
+]
+
+[project.scripts]
+pqview = "pqview.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
