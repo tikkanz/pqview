@@ -42,6 +42,8 @@ def show(
     This is the default command if no command is specified."""
     lf = pl.scan_parquet(file)
     pl.Config.set_tbl_rows(nrows).set_tbl_cols(ncols)
+    # if not all:
+    #     lf = pl.concat([lf.head(nrows // 2), lf.tail(nrows // 2)])
     with cfg_all if all else cfg_default:
         print(lf.collect())
 
@@ -68,7 +70,7 @@ def glimpse(file: str) -> None:
     The formatting shows one line per column so that wide dataframes display cleanly.
     Each line shows the column name, the data type, and the first few values."""
     lf = pl.scan_parquet(file)
-    lf.collect().glimpse()
+    lf.head().collect().glimpse()
 
 
 @app.command()
